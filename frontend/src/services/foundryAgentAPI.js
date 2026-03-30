@@ -1,107 +1,129 @@
-// frontend/src/services/langgraphAgentAPI.js
-/**
- * LangGraph AI Agent API Service
- * Frontend service layer for LangGraph Agent (Azure OpenAI + LangChain Tools)
- */
+// frontend/src/services/foundryAgentAPI.js
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const getToken = () => localStorage.getItem("token");
 
 const getTabSessionKey = () => {
-  let key = sessionStorage.getItem('tab_session_key');
+  let key = sessionStorage.getItem("tab_session_key");
   if (!key) {
-    key = 'tab_' + Math.random().toString(36).substr(2, 12) + '_' + Date.now().toString(36);
-    sessionStorage.setItem('tab_session_key', key);
+    key = "tab_" + Math.random().toString(36).substr(2, 12) + "_" + Date.now().toString(36);
+    sessionStorage.setItem("tab_session_key", key);
   }
   return key;
 };
 
-const getHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('token')}`,
-  'X-Tab-Session-Key': getTabSessionKey(),
-  'Content-Type': 'application/json',
-  'ngrok-skip-browser-warning': 'true',
-});
+const getAuthHeaders = () => {
+  const headers = {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  };
+  const token = getToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  headers["X-Tab-Session-Key"] = getTabSessionKey();
+  return headers;
+};
 
-const BASE = `${API_BASE}/api/langgraph-agent`;
+// For file uploads — no Content-Type (browser sets multipart boundary)
+const getUploadHeaders = () => {
+  const headers = {
+    "ngrok-skip-browser-warning": "true",
+  };
+  const token = getToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  headers["X-Tab-Session-Key"] = getTabSessionKey();
+  return headers;
+};
 
-export const langgraphAgentAPI = {
+const BASE = `${API_BASE_URL}/api/foundry-agent`;
 
-  createConversation: async (title = 'LangGraph AI Chat') => {
+export const foundryAgentAPI = {
+
+  createConversation: async (title = "Agent Chat") => {
     const res = await fetch(`${BASE}/conversations`, {
-      method: 'POST',
-      headers: getHeaders(),
+      method: "POST",
+      headers: getAuthHeaders(),
       body: JSON.stringify({ title }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to create conversation');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to create conversation");
     return data;
   },
 
   listConversations: async () => {
-    const res = await fetch(`${BASE}/conversations`, { headers: getHeaders() });
+    const res = await fetch(`${BASE}/conversations`, { headers: getAuthHeaders() });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to list conversations');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to list conversations");
     return data;
   },
 
   getMessages: async (conversationId) => {
     const res = await fetch(`${BASE}/conversations/${conversationId}/messages`, {
-      headers: getHeaders(),
+      headers: getAuthHeaders(),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to get messages');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to get messages");
     return data;
   },
 
   deleteConversation: async (conversationId) => {
     const res = await fetch(`${BASE}/conversations/${conversationId}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
+      method: "DELETE",
+      headers: getAuthHeaders(),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to delete conversation');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to delete conversation");
     return data;
   },
 
   sendMessage: async (conversationId, content, includeUserContext = true) => {
     const res = await fetch(`${BASE}/conversations/${conversationId}/messages`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        content,
-        include_user_context: includeUserContext
-      }),
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ content, include_user_context: includeUserContext }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to send message');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to send message");
     return data;
   },
 
-  resetHistory: async (conversationId) => {
-    const res = await fetch(`${BASE}/conversations/${conversationId}/reset-history`, {
-      method: 'POST',
-      headers: getHeaders(),
+  uploadFile: async (conversationId, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${BASE}/conversations/${conversationId}/upload`, {
+      method: "POST",
+      headers: getUploadHeaders(),
+      body: formData,
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to reset history');
+    if (!res.ok) throw new Error(data.detail || data.error || "Upload failed");
     return data;
   },
 
-  getHistory: async (conversationId) => {
-    const res = await fetch(`${BASE}/conversations/${conversationId}/history`, {
-      headers: getHeaders(),
+  resetThread: async () => {
+    const res = await fetch(`${BASE}/reset-thread`, {
+      method: "POST",
+      headers: getAuthHeaders(),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Failed to get history');
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to reset thread");
+    return data;
+  },
+
+  getThreadMessages: async () => {
+    const res = await fetch(`${BASE}/thread-messages`, { headers: getAuthHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.error || "Failed to get thread messages");
     return data;
   },
 
   health: async () => {
-    const res = await fetch(`${BASE}/health`, { headers: getHeaders() });
+    const res = await fetch(`${BASE}/health`, { headers: getAuthHeaders() });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error || 'Health check failed');
+    if (!res.ok) throw new Error(data.detail || data.error || "Health check failed");
     return data;
   },
+
 };
 
-export default langgraphAgentAPI;
+export default foundryAgentAPI;
