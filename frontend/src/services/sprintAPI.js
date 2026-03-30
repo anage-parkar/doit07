@@ -185,5 +185,3 @@ export const getAvailableSprintTasks = async (projectId) => {
   if (!response.ok) throw new Error(data.error || "Failed to fetch available tasks");
   return data;
 };
-
-export default sprintAPI;
