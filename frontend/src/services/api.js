@@ -12,7 +12,6 @@ const getTabSessionKey = () => {
   let key = sessionStorage.getItem("tab_session_key");
   
   if (!key) {
-    // Generate a unique key (UUID-like)
     key = 'tab_' + Math.random().toString(36).substr(2, 12) + '_' + Date.now().toString(36);
     sessionStorage.setItem("tab_session_key", key);
   }
@@ -20,11 +19,11 @@ const getTabSessionKey = () => {
   return key;
 };
 
-
-// Helper to get auth headers (always includes tab key)
+// Helper to get auth headers (always includes tab key + ngrok bypass)
 export const getAuthHeaders = () => {
   const headers = {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   };
   
   const token = getToken();
@@ -32,29 +31,33 @@ export const getAuthHeaders = () => {
     headers["Authorization"] = `Bearer ${token}`;
   }
   
-  // Always include tab session key
   headers["X-Tab-Session-Key"] = getTabSessionKey();
   
   return headers;
 };
 
+// Helper for multipart/file upload headers (no Content-Type for FormData)
+const getUploadHeaders = () => {
+  const token = getToken();
+  const headers = {
+    "ngrok-skip-browser-warning": "true",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  headers["X-Tab-Session-Key"] = getTabSessionKey();
+  return headers;
+};
+
 export const documentIntelligenceAPI = {
-  // Analyze a file (PDF, DOCX, XLSX, images etc.)
   analyzeFile: async (file, question = '') => {
     const formData = new FormData();
     formData.append('file', file);
     if (question) formData.append('question', question);
 
-    const token = getToken();
-    const tabSessionKey = getTabSessionKey();
-
     const response = await fetch(`${API_BASE_URL}/api/document-intelligence/analyze`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-        // No Content-Type — browser sets it for FormData
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
 
@@ -63,21 +66,14 @@ export const documentIntelligenceAPI = {
     return data;
   },
 
-  // Analyze from URL
   analyzeUrl: async (url, question = '') => {
     const formData = new FormData();
     formData.append('url', url);
     if (question) formData.append('question', question);
 
-    const token = getToken();
-    const tabSessionKey = getTabSessionKey();
-
     const response = await fetch(`${API_BASE_URL}/api/document-intelligence/analyze`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
 
@@ -86,7 +82,6 @@ export const documentIntelligenceAPI = {
     return data;
   },
 
-  // Export InsightReport as PDF
   exportPdf: async (report) => {
     const response = await fetch(`${API_BASE_URL}/api/document-intelligence/export-pdf`, {
       method: 'POST',
@@ -112,7 +107,6 @@ export const documentIntelligenceAPI = {
     return { success: true };
   },
 
-  // Health check
   checkHealth: async () => {
     const response = await fetch(`${API_BASE_URL}/api/document-intelligence/health`, {
       headers: getAuthHeaders()
@@ -128,19 +122,13 @@ export const dataVizAPI = {
   uploadDataset: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    
-    const token = localStorage.getItem('token');
-    const tabSessionKey = getTabSessionKey();
-    
+
     const response = await fetch(`${API_BASE_URL}/api/data-viz/upload`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
-    
+
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Failed to upload dataset');
     return data;
@@ -185,11 +173,8 @@ export const dataVizAPI = {
     window.open(url, '_blank');
   }
 };
+
 export const chatAPI = {
-  // ============================================
-  // EXISTING FUNCTIONS (kept as is)
-  // ============================================
-  
   getUserProjects: async () => {
     const response = await fetch(`${API_BASE_URL}/api/team-chat/projects`, {
       headers: getAuthHeaders(),
@@ -217,13 +202,9 @@ export const chatAPI = {
     return data;
   },
 
-  // ============================================
-  // UPDATED: sendMessage - Now supports objects with attachments
-  // ============================================
   sendMessage: async (channelId, messageData) => {
-    // Support both string and object formats
-    const payload = typeof messageData === 'string' 
-      ? { text: messageData } 
+    const payload = typeof messageData === 'string'
+      ? { text: messageData }
       : messageData;
 
     const response = await fetch(`${API_BASE_URL}/api/team-chat/channels/${channelId}/messages`, {
@@ -266,13 +247,9 @@ export const chatAPI = {
     return data;
   },
 
-  // ============================================
-  // ENHANCED: Reactions - Fixed to match controller
-  // ============================================
   addReaction: async (channelId, messageId, emojiData) => {
-    // Support both object {emoji: "👍"} and string "👍"
-    const payload = typeof emojiData === 'string' 
-      ? { emoji: emojiData } 
+    const payload = typeof emojiData === 'string'
+      ? { emoji: emojiData }
       : emojiData;
 
     const response = await fetch(`${API_BASE_URL}/api/team-chat/channels/${channelId}/messages/${messageId}/reactions`, {
@@ -280,40 +257,34 @@ export const chatAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to add reaction');
     }
-    
+
     return await response.json();
   },
 
-  // Note: Backend uses POST to toggle reactions, so removeReaction calls addReaction
   removeReaction: async (channelId, messageId, emoji) => {
-    // Same endpoint - backend toggles reactions
     return chatAPI.addReaction(channelId, messageId, emoji);
   },
 
-  // ============================================
-  // ENHANCED: Message Editing & Deletion
-  // ============================================
   editMessage: async (channelId, messageId, messageData) => {
     const response = await fetch(`${API_BASE_URL}/api/team-chat/channels/${channelId}/messages/${messageId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(messageData)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to edit message');
     }
-    
+
     return await response.json();
   },
 
-  // Alias for consistency
   updateMessage: async (channelId, messageId, messageData) => {
     return chatAPI.editMessage(channelId, messageId, messageData);
   },
@@ -323,35 +294,31 @@ export const chatAPI = {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete message');
     }
-    
+
     return await response.json();
   },
 
-  // ============================================
-  // ENHANCED: Thread Replies
-  // ============================================
   getThreadReplies: async (channelId, messageId, params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     const url = `${API_BASE_URL}/api/team-chat/channels/${channelId}/messages/${messageId}/replies${queryString ? '?' + queryString : ''}`;
-    
+
     const response = await fetch(url, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch thread replies');
     }
-    
+
     return await response.json();
   },
 
-  // Alias for consistency with backend
   getMessageThread: async (channelId, messageId) => {
     return chatAPI.getThreadReplies(channelId, messageId);
   },
@@ -362,68 +329,52 @@ export const chatAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(replyData)
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to post thread reply');
     }
-    
+
     return await response.json();
   },
 
-  // ============================================
-  // ENHANCED: File Upload - FIXED VERSION
-  // ============================================
   uploadAttachment: async (fileOrFormData) => {
     let formData;
-    
-    // Handle both File object and FormData
+
     if (fileOrFormData instanceof FormData) {
       formData = fileOrFormData;
     } else {
       formData = new FormData();
       formData.append('file', fileOrFormData);
     }
-    
-    // Get token for auth (don't use getAuthHeaders for FormData!)
-    const token = localStorage.getItem('token');
-    const tabSessionKey = getTabSessionKey();
-    
+
     const response = await fetch(`${API_BASE_URL}/api/team-chat/upload`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-        // IMPORTANT: Don't set Content-Type for FormData - browser will set it with boundary
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to upload file');
     }
-    
+
     return await response.json();
   },
 
-  // ============================================
-  // ENHANCED: Mentions & Search
-  // ============================================
   getMentions: async () => {
     const response = await fetch(`${API_BASE_URL}/api/team-chat/mentions`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch mentions');
     }
-    
+
     return await response.json();
   },
 
-  // Alias for consistency
   getUserMentions: async () => {
     return chatAPI.getMentions();
   },
@@ -432,30 +383,27 @@ export const chatAPI = {
     const response = await fetch(`${API_BASE_URL}/api/team-chat/search/${channelId}?q=${encodeURIComponent(query)}`, {
       headers: getAuthHeaders()
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to search messages');
     }
-    
+
     return await response.json();
   },
 
-  // ============================================
-  // ENHANCED: Read Receipts - FIXED ENDPOINT
-  // ============================================
   markAsRead: async (channelId, messageIds) => {
     const response = await fetch(`${API_BASE_URL}/api/team-chat/channels/${channelId}/read`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ message_ids: messageIds })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to mark as read');
     }
-    
+
     return await response.json();
   }
 };
@@ -465,7 +413,10 @@ export const authAPI = {
   register: async (name, email, password) => {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
       body: JSON.stringify({ name, email, password }),
     });
     const data = await response.json();
@@ -476,7 +427,10 @@ export const authAPI = {
   login: async (email, password) => {
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
       body: JSON.stringify({ email, password }),
     });
     const data = await response.json();
@@ -487,7 +441,10 @@ export const authAPI = {
   clerkSync: async (clerkToken, email, name, clerkUserId) => {
     const response = await fetch(`${API_BASE_URL}/api/auth/clerk-sync`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
       body: JSON.stringify({
         clerk_token: clerkToken,
         email,
@@ -517,7 +474,6 @@ export const dashboardAPI = {
     const cached = requestCache.get(cacheKey);
     if (cached) return cached;
 
-    // Check if request is in progress
     if (requestCache.isPending(cacheKey)) {
       return requestCache.getPending(cacheKey);
     }
@@ -566,7 +522,6 @@ export const dashboardAPI = {
     return data;
   },
 
-  // Clear dashboard cache
   clearCache: () => {
     requestCache.invalidatePattern('dashboard:');
   }
@@ -595,6 +550,15 @@ export const userAPI = {
     return data;
   },
 
+  getUserManagementData: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/users/management`, {
+      headers: getAuthHeaders(),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to fetch user management data");
+    return data;
+  },
+
   updateUserRole: async (userId, role) => {
     const response = await fetch(`${API_BASE_URL}/api/users/role`, {
       method: "PUT",
@@ -603,6 +567,26 @@ export const userAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to update user role");
+    return data;
+  },
+
+  deleteUser: async (userId, confirmationText) => {
+    const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ confirmation_text: confirmationText }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to delete user");
+    return data;
+  },
+
+  getAdminProjects: async (adminUserId) => {
+    const response = await fetch(`${API_BASE_URL}/api/users/admins/${adminUserId}/projects`, {
+      headers: getAuthHeaders(),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to fetch admin projects");
     return data;
   },
 };
@@ -661,7 +645,6 @@ export const projectAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to create project");
-    // Invalidate projects cache
     requestCache.invalidate('projects:all');
     requestCache.invalidatePattern('dashboard:');
     return data;
@@ -675,7 +658,6 @@ export const projectAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to update project");
-    // Invalidate caches
     requestCache.invalidate('projects:all');
     requestCache.invalidate(`project:${projectId}`);
     requestCache.invalidatePattern('dashboard:');
@@ -689,7 +671,6 @@ export const projectAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to delete project");
-    // Invalidate all project-related caches
     requestCache.invalidate('projects:all');
     requestCache.invalidate(`project:${projectId}`);
     requestCache.invalidate(`tasks:project:${projectId}`);
@@ -708,7 +689,6 @@ export const memberAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to add member");
-    // Invalidate member cache
     requestCache.invalidate(`members:project:${projectId}`);
     return data;
   },
@@ -742,7 +722,6 @@ export const memberAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to remove member");
-    // Invalidate member cache
     requestCache.invalidate(`members:project:${projectId}`);
     return data;
   },
@@ -761,7 +740,6 @@ export const taskAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to create task");
-    // Invalidate task and dashboard caches
     requestCache.invalidate(`tasks:project:${projectId}`);
     requestCache.invalidatePattern('dashboard:');
     requestCache.invalidatePattern('tasks:');
@@ -816,7 +794,6 @@ export const taskAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to update task");
-    // Invalidate caches
     requestCache.invalidatePattern('tasks:');
     requestCache.invalidatePattern('dashboard:');
     return data;
@@ -829,7 +806,6 @@ export const taskAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to delete task");
-    // Invalidate caches
     requestCache.invalidatePattern('tasks:');
     requestCache.invalidatePattern('dashboard:');
     return data;
@@ -910,7 +886,6 @@ export const taskAPI = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Failed to approve task");
-    // Invalidate approval and closed task caches
     requestCache.invalidate('tasks:pending-approval');
     requestCache.invalidate('tasks:closed');
     requestCache.invalidatePattern('dashboard:');
@@ -969,7 +944,7 @@ export const taskAPI = {
     requestCache.setPending(cacheKey, requestPromise);
     return requestPromise;
   },
-  
+
   addComment: async (taskId, comment) => {
     if (!comment?.trim()) {
       throw new Error("Comment cannot be empty");
@@ -1059,25 +1034,10 @@ export const profileAPI = {
     return data;
   },
 };
+
 export { agentAPI };
-// ============================================================================
-// Global Insights API - ADD TO frontend/src/services/api.js
-// ============================================================================
 
-// Add this section after your existing API objects (e.g., after dataVizAPI)
-
-/**
- * Global Insights API
- * YouTube Intelligence Multi-Agent System
- * LangChain Architecture: Transcript Agent → Blog Agent → PDF Generator
- */
 export const globalInsightsAPI = {
-  /**
-   * Analyze YouTube video - Full multi-agent processing
-   * @param {string} youtubeUrl - YouTube video URL
-   * @param {string} question - Optional analysis focus question
-   * @returns {Promise} Complete intelligence report
-   */
   analyzeYoutubeVideo: async (youtubeUrl, question = '') => {
     const response = await fetch(`${API_BASE_URL}/api/global-insights/analyze-youtube`, {
       method: 'POST',
@@ -1087,21 +1047,15 @@ export const globalInsightsAPI = {
         question: question
       })
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.detail || data.error || 'Failed to analyze YouTube video');
     }
-    
+
     return data;
   },
 
-  /**
-   * Export YouTube intelligence as PDF report
-   * @param {string} youtubeUrl - YouTube video URL
-   * @param {string} question - Optional analysis focus question
-   * @returns {Promise} Triggers PDF download
-   */
   exportYoutubePdf: async (youtubeUrl, question = '') => {
     const response = await fetch(`${API_BASE_URL}/api/global-insights/export-youtube-pdf`, {
       method: 'POST',
@@ -1111,13 +1065,12 @@ export const globalInsightsAPI = {
         question: question
       })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.detail || 'Failed to export PDF');
     }
-    
-    // Download PDF
+
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1127,175 +1080,111 @@ export const globalInsightsAPI = {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     return { success: true, message: 'PDF downloaded successfully' };
   },
 
-  /**
-   * Check Global Insights system health
-   * @returns {Promise} Health status of multi-agent system
-   */
   checkHealth: async () => {
     const response = await fetch(`${API_BASE_URL}/api/global-insights/health`, {
       headers: getAuthHeaders()
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.detail || 'Health check failed');
     }
-    
+
     return data;
   },
 
-  /**
-   * Validate YouTube URL format
-   * @param {string} url - URL to validate
-   * @returns {boolean} True if valid YouTube URL
-   */
   isValidYoutubeUrl: (url) => {
     const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/;
     return pattern.test(url);
   },
 
-  /**
-   * Extract video ID from YouTube URL
-   * @param {string} url - YouTube URL
-   * @returns {string|null} Video ID or null if invalid
-   */
   extractVideoId: (url) => {
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
       /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
     ];
-    
+
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match) return match[1];
     }
-    
+
     return null;
   }
 };
 
-// ============================================================================
-// Voice Chat API - Azure Whisper + TTS
-// Add this to the end of frontend/src/services/api.js
-// ============================================================================
-
-/**
- * Voice Chat API
- * Azure Whisper STT + GPT-4o-mini + Azure TTS
- * Backend processing for professional voice quality
- */
 export const voiceChatAPI = {
-  /**
-   * Health check for voice chat services
-   * @returns {Promise} Service status and available voice presets
-   */
   checkHealth: async () => {
     const response = await fetch(`${API_BASE_URL}/api/voice-chat/voice/health`, {
       headers: getAuthHeaders()
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || 'Voice chat health check failed');
     }
-    
+
     return data;
   },
 
-  /**
-   * Transcribe audio file using Azure Whisper
-   * @param {File|Blob} audioFile - Audio file (webm, mp3, wav, m4a, ogg)
-   * @returns {Promise} Transcription result with text, language, duration
-   */
   transcribe: async (audioFile) => {
     const formData = new FormData();
     formData.append('audio', audioFile);
-    
-    const token = getToken();
-    const tabSessionKey = getTabSessionKey();
-    
+
     const response = await fetch(`${API_BASE_URL}/api/voice-chat/voice/transcribe`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-        // Don't set Content-Type - browser sets it with boundary for FormData
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
-    
+
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.detail || data.error || 'Transcription failed');
     }
-    
+
     return data;
   },
 
-  /**
-   * Convert text to speech using Azure TTS
-   * @param {string} text - Text to synthesize
-   * @param {string} persona - Voice persona: 'friendly', 'professional', 'direct', 'assistant'
-   * @returns {Promise<Blob>} Audio blob (MP3)
-   */
   synthesize: async (text, persona = 'friendly') => {
     const response = await fetch(`${API_BASE_URL}/api/voice-chat/voice/synthesize`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ text, persona })
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || error.error || 'Text-to-speech failed');
     }
-    
-    // Return audio blob
+
     return await response.blob();
   },
 
-  /**
-   * Complete voice chat flow: Audio → Whisper → GPT → TTS → Audio
-   * @param {File|Blob} audioFile - User's audio recording
-   * @param {string} persona - Voice persona
-   * @param {Array} conversationHistory - Previous conversation turns
-   * @returns {Promise<{audioBlob: Blob, transcript: string, responseText: string}>}
-   */
   chat: async (audioFile, persona = 'friendly', conversationHistory = []) => {
     const formData = new FormData();
     formData.append('audio', audioFile);
     formData.append('persona', persona);
     formData.append('conversation_history', JSON.stringify(conversationHistory));
-    
-    const token = getToken();
-    const tabSessionKey = getTabSessionKey();
-    
+
     const response = await fetch(`${API_BASE_URL}/api/voice-chat/voice/chat`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tab-Session-Key': tabSessionKey
-        // Don't set Content-Type for FormData
-      },
+      headers: getUploadHeaders(),
       body: formData
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || error.error || 'Voice chat failed');
     }
-    
-    // Get transcript and response text from headers
+
     const transcript = response.headers.get('X-Transcript') || 'Voice input';
     const responseText = response.headers.get('X-Response-Text') || '';
-    
-    // Get audio blob
     const audioBlob = await response.blob();
-    
+
     return {
       audioBlob,
       transcript,
@@ -1303,8 +1192,5 @@ export const voiceChatAPI = {
     };
   },
 
-  /**
-   * Available voice personas
-   */
   personas: ['friendly', 'professional', 'direct', 'assistant']
 };

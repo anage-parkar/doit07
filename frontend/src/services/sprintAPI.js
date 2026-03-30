@@ -1,3 +1,4 @@
+// frontend/src/services/sprintAPI.js
 import { requestCache } from '../utils/requestCache';
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
@@ -7,6 +8,7 @@ const getAuthHeaders = () => {
   const tabSessionKey = sessionStorage.getItem("tab_session_key");
   return {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
     Authorization: token ? `Bearer ${token}` : "",
     "X-Tab-Session-Key": tabSessionKey || "",
   };
@@ -21,7 +23,6 @@ export const createSprint = async (projectId, sprintData) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to create sprint");
-  // Invalidate sprints cache
   requestCache.invalidate(`sprints:project:${projectId}`);
   return data;
 };
@@ -83,7 +84,6 @@ export const updateSprint = async (sprintId, sprintData) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to update sprint");
-  // Invalidate sprint caches
   requestCache.invalidate(`sprint:${sprintId}`);
   requestCache.invalidatePattern('sprints:project:');
   return data;
@@ -97,7 +97,6 @@ export const startSprint = async (sprintId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to start sprint");
-  // Invalidate sprint caches
   requestCache.invalidate(`sprint:${sprintId}`);
   requestCache.invalidatePattern('sprints:project:');
   return data;
@@ -111,7 +110,6 @@ export const completeSprint = async (sprintId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to complete sprint");
-  // Invalidate sprint caches
   requestCache.invalidate(`sprint:${sprintId}`);
   requestCache.invalidatePattern('sprints:project:');
   return data;
@@ -125,7 +123,6 @@ export const deleteSprint = async (sprintId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to delete sprint");
-  // Invalidate sprint caches
   requestCache.invalidate(`sprint:${sprintId}`);
   requestCache.invalidatePattern('sprints:project:');
   return data;
@@ -162,13 +159,12 @@ export const getSprintTasks = async (projectId, sprintId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to fetch tasks");
-  
-  // Filter tasks for this sprint
+
   const sprintTasks = data.tasks.filter(task => task.sprint_id === sprintId);
   return { ...data, tasks: sprintTasks };
 };
 
-// Get backlog tasks (tasks that were moved to backlog from completed sprints)
+// Get backlog tasks
 export const getBacklogTasks = async (projectId) => {
   const response = await fetch(`${API_URL}/api/projects/${projectId}/backlog`, {
     method: "GET",
@@ -176,11 +172,10 @@ export const getBacklogTasks = async (projectId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to fetch backlog tasks");
-  
   return data;
 };
 
-// Get available tasks that can be added to sprints (all unassigned tasks)
+// Get available tasks that can be added to sprints
 export const getAvailableSprintTasks = async (projectId) => {
   const response = await fetch(`${API_URL}/api/projects/${projectId}/available-tasks`, {
     method: "GET",
@@ -188,7 +183,5 @@ export const getAvailableSprintTasks = async (projectId) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Failed to fetch available tasks");
-  
   return data;
 };
-

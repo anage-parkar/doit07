@@ -1,3 +1,4 @@
+// frontend/src/context/AuthContext.js
 import { createContext, useState, useEffect, useRef } from "react";
 import { useUser, useAuth as useClerkAuth } from "@clerk/clerk-react";
 import { authAPI, getAuthHeaders } from "../services/api";
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const refreshingSession = useRef(false);
-  
+
   // Clerk hooks
   const { isSignedIn, user: clerkUser, isLoaded } = useUser();
   const { getToken, signOut } = useClerkAuth();
@@ -24,11 +25,9 @@ export const AuthProvider = ({ children }) => {
 
       if (isSignedIn && clerkUser) {
         try {
-          // Get Clerk JWT token
           const clerkToken = await getToken();
           console.log("[AUTH] Got Clerk token");
 
-          // Send to backend to create/sync user
           const response = await authAPI.clerkSync(
             clerkToken,
             clerkUser.primaryEmailAddress?.emailAddress,
@@ -40,7 +39,6 @@ export const AuthProvider = ({ children }) => {
 
           const { token, user: userData, tab_session_key } = response;
 
-          // Store our app's JWT token
           localStorage.setItem("token", token);
           localStorage.setItem("user_id", userData.id || userData._id);
 
@@ -55,7 +53,6 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         }
       } else {
-        // Not signed in with Clerk, check for traditional auth
         checkTraditionalAuth();
       }
     };
@@ -102,12 +99,13 @@ export const AuthProvider = ({ children }) => {
         refreshingSession.current = true;
 
         try {
+          // Use getAuthHeaders() which already includes ngrok-skip-browser-warning
           const response = await fetch(`${API_BASE_URL}/api/auth/refresh-session`, {
             method: "POST",
             headers: getAuthHeaders(),
           });
           const data = await response.json();
-          
+
           console.log("[AUTH] New tab session created:", data);
           const newTabKey = data.tab_session_key;
           if (newTabKey) {
@@ -175,12 +173,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    // Logout from Clerk if signed in
     if (isSignedIn) {
       await signOut();
     }
 
-    // Logout from our backend
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
     sessionStorage.removeItem("tab_session_key");
