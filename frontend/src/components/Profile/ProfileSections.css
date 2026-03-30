@@ -1,0 +1,832 @@
+/* ========================================
+   PROFILE SECTIONS - Dashboard Aligned UI
+   ======================================== */
+
+.profile-section {
+  min-height: auto;
+}
+
+/* ========================================
+   SECTION HEADERS
+   ======================================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--profile-border-primary);
+}
+
+.section-header h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: var(--profile-text-primary);
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--profile-text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn-edit,
+.btn-add,
+.btn-add-inline {
+  background: var(--profile-primary);
+  color: #ffffff !important;
+  border: 1px solid var(--profile-primary);
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: var(--profile-shadow-xs);
+}
+
+.btn-edit *,
+.btn-add *,
+.btn-add-inline * {
+  color: #ffffff !important;
+}
+
+.btn-edit:hover,
+.btn-add:hover,
+.btn-add-inline:hover {
+  background: var(--profile-primary-hover);
+  border-color: var(--profile-primary-hover);
+  box-shadow: var(--profile-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.btn-add-inline {
+  margin-top: 16px;
+}
+
+/* ========================================
+   STATUS MESSAGES
+   ======================================== */
+.message {
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.message.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.message.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="dark"] .message.success {
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .message.error {
+  color: #fca5a5;
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+.profile-form {
+  margin-top: 10px;
+}
+
+.profile-form h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  color: var(--profile-text-primary);
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+  background: var(--profile-bg-tertiary);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--profile-border-primary);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--profile-text-secondary);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.form-input,
+.form-input:disabled {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--profile-border-primary);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--profile-bg-secondary);
+  color: var(--profile-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.form-input:hover:not(:disabled) {
+  border-color: var(--profile-border-hover);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--profile-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.form-input.disabled {
+  background: rgba(148, 163, 184, 0.12);
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+[data-theme="dark"] .form-input.disabled {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.form-input::placeholder {
+  color: var(--profile-text-muted);
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 76px;
+}
+
+select.form-input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233b82f6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.form-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--profile-text-tertiary);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--profile-border-primary);
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: var(--profile-bg-secondary);
+  color: var(--profile-text-primary);
+  border-color: var(--profile-border-primary);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--profile-bg-tertiary);
+  border-color: var(--profile-border-hover);
+}
+
+.btn-save {
+  background: var(--profile-primary);
+  color: #ffffff !important;
+  border-color: var(--profile-primary);
+}
+
+.btn-save:hover:not(:disabled) {
+  background: var(--profile-primary-hover);
+  border-color: var(--profile-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   PERSONAL & ORGANIZATION COMPACT LAYOUT
+   ======================================== */
+.personal-section .section-header,
+.organization-section .section-header {
+  margin-bottom: 14px;
+}
+
+.personal-section .form-grid,
+.organization-section .form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.personal-section .form-grid {
+  align-items: start;
+}
+
+.personal-section .form-group,
+.organization-section .form-group {
+  min-width: 0;
+}
+
+.personal-section .form-group {
+  gap: 4px;
+}
+
+.personal-section .form-group label,
+.organization-section .form-group label {
+  margin-bottom: 4px;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
+.personal-section .form-input,
+.personal-section .form-input:disabled,
+.organization-section .form-input,
+.organization-section .form-input:disabled {
+  padding: 7px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+.personal-section textarea.form-input {
+  min-height: 58px;
+}
+
+.personal-section .form-hint,
+.organization-section .form-hint {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.personal-section .profile-form,
+.organization-section .profile-form {
+  margin-top: 6px;
+}
+
+.personal-section .form-actions,
+.organization-section .form-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--profile-bg-tertiary);
+  border: 1px dashed var(--profile-border-secondary);
+  border-radius: 14px;
+  margin: 18px 0;
+}
+
+.empty-icon {
+  margin-bottom: 14px;
+  color: var(--profile-text-tertiary);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--profile-text-secondary);
+}
+
+/* ========================================
+   EDUCATION & CERTIFICATE CARDS
+   ======================================== */
+.education-list,
+.certificates-list {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.education-card,
+.certificate-card {
+  background: var(--profile-bg-secondary);
+  border: 1px solid var(--profile-border-primary);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--profile-shadow-xs);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.education-card:hover,
+.certificate-card:hover {
+  border-color: var(--profile-border-hover);
+  box-shadow: var(--profile-shadow-sm);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-icon {
+  flex-shrink: 0;
+  color: var(--profile-primary);
+  margin-top: 2px;
+}
+
+.card-title {
+  flex: 1;
+}
+
+.card-title h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--profile-text-primary);
+  font-weight: 700;
+}
+
+.card-year,
+.card-issuer {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--profile-primary);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--profile-border-primary);
+  color: var(--profile-text-secondary);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: var(--profile-bg-tertiary);
+  border-color: var(--profile-border-hover);
+  color: var(--profile-text-primary);
+}
+
+.btn-icon.delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #b91c1c;
+}
+
+.card-body p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: var(--profile-text-secondary);
+  line-height: 1.5;
+}
+
+.institution,
+.issue-date {
+  color: var(--profile-text-primary);
+  font-weight: 600;
+}
+
+.issue-date,
+.credential-id,
+.summary-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.board,
+.credential-id,
+.stream,
+.percentage {
+  color: var(--profile-text-tertiary);
+}
+
+.credential-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--profile-primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  transition: all 0.2s ease;
+}
+
+.credential-link:hover {
+  color: var(--profile-primary-hover);
+  background: rgba(37, 99, 235, 0.16);
+}
+
+/* ========================================
+   ORGANIZATION SUMMARY
+   ======================================== */
+.organization-summary {
+  margin-top: 12px;
+}
+
+.organization-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.organization-form-pane,
+.organization-summary-pane {
+  min-width: 0;
+}
+
+.organization-summary-pane .organization-summary {
+  margin-top: 0;
+}
+
+.personal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.personal-form-pane,
+.personal-summary-pane {
+  min-width: 0;
+}
+
+.personal-summary-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.1));
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+[data-theme="dark"] .personal-summary-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(14, 165, 233, 0.2));
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.personal-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.personal-summary-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--profile-primary);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.personal-summary-title h4 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--profile-text-primary);
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.personal-summary-title p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--profile-text-secondary);
+  font-weight: 600;
+}
+
+.personal-summary-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.personal-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--profile-border-primary);
+  background: var(--profile-bg-secondary);
+  color: var(--profile-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.personal-detail-chip-wide {
+  border-radius: 10px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.1));
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  border-radius: 14px;
+  padding: 16px;
+  color: var(--profile-text-primary);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+[data-theme="dark"] .summary-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(14, 165, 233, 0.2));
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.summary-icon {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--profile-primary);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .summary-icon {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-content h4 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--profile-text-primary) !important;
+}
+
+.summary-role {
+  font-size: 15px;
+  margin: 0 0 10px;
+  color: var(--profile-text-secondary) !important;
+  font-weight: 600;
+}
+
+.summary-details-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.summary-detail {
+  font-size: 13px;
+  color: var(--profile-text-secondary) !important;
+  background: var(--profile-bg-secondary);
+  border: 1px solid var(--profile-border-primary);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 600;
+}
+
+/* ========================================
+   BUTTON UTILITIES
+   ======================================== */
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 968px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 18px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .education-list,
+  .certificates-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .summary-details-wrapper {
+    justify-content: center;
+  }
+
+  .organization-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .personal-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .personal-section .form-grid,
+  .organization-section .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px;
+  }
+
+  .personal-section .form-group.full-width,
+  .organization-section .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .section-header h2 {
+    font-size: 24px;
+  }
+
+  .profile-form h3 {
+    font-size: 18px;
+  }
+
+  .education-card,
+  .certificate-card {
+    padding: 14px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .education-list,
+  .certificates-list {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-section .form-grid,
+  .organization-section .form-grid {
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .summary-card {
+    padding: 18px;
+  }
+
+  .summary-icon {
+    width: 78px;
+    height: 78px;
+  }
+
+  .summary-content h4 {
+    font-size: 24px;
+  }
+
+  .summary-role {
+    font-size: 16px;
+  }
+
+  .empty-state {
+    padding: 36px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-edit,
+  .btn-add,
+  .btn-add-inline,
+  .btn-save,
+  .btn-cancel,
+  .credential-link,
+  .btn-icon,
+  .education-card,
+  .certificate-card {
+    transition: none;
+  }
+
+  .btn-spinner {
+    animation-duration: 1.2s;
+  }
+}

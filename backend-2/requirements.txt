@@ -1,0 +1,61 @@
+ # Core FastAPI and dependencies
+fastapi>=0.115.0
+pydantic>=2.9.0
+pydantic[email]>=2.9.0
+email-validator>=2.2.0
+uvicorn[standard]>=0.30.0
+
+# Authentication and security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+PyJWT>=2.9.0
+bcrypt>=4.2.0
+
+# Database
+pymongo>=4.8.0
+
+# Utilities
+python-dotenv>=1.0.1
+python-multipart>=0.0.9
+typing-extensions>=4.14.0
+requests>=2.32.0
+pandas 
+# AI Integration
+anthropic>=0.34.0
+openai>=1.12.0  # For Azure OpenAI (GPT-5.2-chat)
+# Note: requests is already included above for FLUX-1.1-pro image generation
+
+# File Processing
+PyPDF2>=3.0.0  # PDF text extraction
+python-docx>=1.1.0  # Word document processing
+
+# Code Review & Security Scanning
+bandit>=1.7.5  # Python security linter
+GitPython>=3.1.40  # Git repository operations
+celery>=5.3.4  # Background task processing
+redis>=5.0.1  # Celery broker and result backend
+
+# Local AI Agent (Ollama + LlamaIndex + ChromaDB)
+# Python 3.14 compatible versions
+ollama>=0.3.0
+llama-index>=0.11.0
+llama-index-llms-ollama>=0.3.0
+llama-index-embeddings-ollama>=0.3.0
+llama-index-vector-stores-chroma>=0.2.0
+chromadb>=0.6.0
+
+# LangChain for AI Agents
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-groq>=0.2.0
+langchain-community>=0.3.0
+langgraph>=0.2.0
+langchain_groq
+mcp-use
+mcp[cli]
+
+azure-ai-agents==1.1.0
+azure-ai-projects==1.0.0b10
+azure-core==1.38.1
+azure-identity==1.25.2

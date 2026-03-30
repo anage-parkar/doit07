@@ -1,0 +1,437 @@
+/* ══════════════════════════════════════════════════════════════════
+   SprintList.css — Modern DOIT Theme
+   ══════════════════════════════════════════════════════════════════ */
+
+.sprint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.no-sprints {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  border: 2px dashed var(--border-primary);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+}
+
+/* ── Sprint Card ───────────────────────────────────────────────── */
+.sprint-card {
+  background: var(--bg-card, var(--bg-secondary));
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 24px 28px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.sprint-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border-radius: 12px 0 0 12px;
+}
+.sprint-planned::before  { background: var(--border-primary); }
+.sprint-active::before   { background: linear-gradient(180deg, #4f8ef7, #00c896); }
+.sprint-completed::before { background: #22c55e; }
+
+.sprint-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  border-color: var(--accent-blue, #4f8ef7);
+}
+[data-theme="light"] .sprint-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* ── Card Header ───────────────────────────────────────────────── */
+.sprint-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sprint-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sprint-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sprint-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+.sprint-link:hover { color: var(--accent-blue, #4f8ef7); }
+
+/* ── Status Badges ─────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.status-badge-planned {
+  background: var(--bg-tertiary, rgba(226,232,240,0.5));
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+}
+.status-badge-active {
+  background: rgba(79,142,247,0.12);
+  color: #4f8ef7;
+  border: 1px solid rgba(79,142,247,0.25);
+}
+.status-badge-completed {
+  background: rgba(34,197,94,0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34,197,94,0.25);
+}
+
+/* ── Action Buttons ────────────────────────────────────────────── */
+.sprint-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sprint-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-tertiary, rgba(226,232,240,0.4));
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.sprint-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.sprint-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.view-tasks-btn:hover {
+  background: rgba(79,142,247,0.1);
+  border-color: rgba(79,142,247,0.3);
+  color: #4f8ef7;
+}
+.add-task-btn:hover {
+  background: rgba(0,200,150,0.1);
+  border-color: rgba(0,200,150,0.3);
+  color: #00c896;
+}
+.start-btn {
+  background: rgba(79,142,247,0.1);
+  border-color: rgba(79,142,247,0.3);
+  color: #4f8ef7;
+}
+.start-btn:hover {
+  background: #4f8ef7;
+  color: #fff;
+  border-color: #4f8ef7;
+}
+.complete-btn {
+  background: rgba(34,197,94,0.1);
+  border-color: rgba(34,197,94,0.3);
+  color: #22c55e;
+}
+.complete-btn:hover {
+  background: #22c55e;
+  color: #fff;
+  border-color: #22c55e;
+}
+.delete-btn {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.2);
+  color: #ef4444;
+}
+.delete-btn:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+/* ── Goal & Dates ──────────────────────────────────────────────── */
+.sprint-goal {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+}
+.sprint-dates {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Progress ──────────────────────────────────────────────────── */
+.sprint-progress { margin-top: 4px; }
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.progress-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+.progress-percentage {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-blue, #4f8ef7);
+}
+.progress-bar {
+  height: 6px;
+  background: var(--border-primary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f8ef7, #00c896);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* ── Tasks view (expanded) ─────────────────────────────────────── */
+.sprint-tasks-view {
+  margin-top: 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  overflow: hidden;
+  animation: slide-down 0.2s ease;
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sprint-tasks-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+.sprint-tasks-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.sprint-tasks-list { display: flex; flex-direction: column; }
+
+.sprint-task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  gap: 12px;
+}
+.sprint-task-item:last-child { border-bottom: none; }
+.sprint-task-item:hover { background: var(--bg-secondary); }
+
+.sprint-task-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.sprint-task-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-blue, #4f8ef7);
+  background: rgba(79,142,247,0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sprint-task-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sprint-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.sprint-task-priority,
+.sprint-task-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.priority-high   { background: rgba(239,68,68,0.12);  color: #ef4444; }
+.priority-medium { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.priority-low    { background: rgba(34,197,94,0.12);  color: #22c55e; }
+
+.status-todo       { background: rgba(148,163,184,0.12); color: #94a3b8; }
+.status-in-progress{ background: rgba(79,142,247,0.12);  color: #4f8ef7; }
+.status-done       { background: rgba(34,197,94,0.12);   color: #22c55e; }
+
+.sprint-task-assignee {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.no-tasks-message {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Task Selector Dropdown ────────────────────────────────────── */
+.task-selector-dropdown {
+  margin-top: 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  overflow: hidden;
+  animation: slide-down 0.2s ease;
+}
+.task-selector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+.task-selector-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+.close-selector-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.close-selector-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.task-selector-list { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; }
+.task-selector-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-primary);
+  gap: 12px;
+  transition: background 0.15s;
+}
+.task-selector-item:last-child { border-bottom: none; }
+.task-selector-item:hover { background: var(--bg-secondary); }
+
+.task-selector-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.task-selector-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.task-selector-due-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+}
+.task-selector-priority {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.add-to-sprint-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.25);
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f8ef7;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.add-to-sprint-btn:hover {
+  background: #4f8ef7;
+  color: #fff;
+  border-color: #4f8ef7;
+  transform: translateY(-1px);
+}
